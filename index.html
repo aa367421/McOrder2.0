@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LGPSDRM6RS"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-LGPSDRM6RS');
+  </script>
+  <title>麥點餐2.0 McOrder 2.0</title>
+
+  <meta name='description' content="麥點餐2.0 McOrder 2.0, Start: 2210  Latest: 2210">
+
+  <meta property="og:title" content="麥點餐2.0 McOrder 2.0">
+  <meta property="og:description" content="Start: 2210  Latest: 2210">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="#">
+  <meta property="og:img" content="#">
+
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="Content-Language" content="zh-Hant">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta name="google" content="notranslate">
+  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script>
+  <script src="https://kit.fontawesome.com/0a024d1a12.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="./css/all.css">
+</head>
+<body>
+    <div class="container-xl w-100 m-0 vh-100" id="app">
+      <div class="main row w-75 h-75 g-0 p-4">
+        <div class="title-block col-lg-6 col-md-12 h-lg-50 h-md-25" v-if="viewStatus != 'orderList' && isBack == false">
+          <h1 class="mb-3">麥點餐2.0</h1>
+          <p class="fs-5">{{ menu.forTime }}的{{ menu.forEvent }}來吃
+            <span class="store">{{ menu.store }}</span>
+          </p>
+          <P class="mb-1 fs-6">目前時間 {{ time }}</P>
+          <P class="m-0 fs-6">截止時間 {{ menu.deadlineTime }}</P>
+        </div>
+        <div class="menu-block col-lg-6 col-md-12 h-lg-50 h-md-25" v-if="viewStatus != 'orderList' && isBack == false">
+          <div class="order-or-watch">
+            <h2>本次菜單</h2>
+            <ul class="w-100 ps-2">
+              <li class="w-50 d-inline-block lh-lg" v-for="food in menu.foodList"><span>{{ food.name }}</span><span class="ms-3">${{ food.price }}</span></li>
+            </ul>
+          </div>
+        </div>
+        <div class="login-block col-lg-6 col-md-12 h-lg-50 h-md-25" v-if="viewStatus == 'login' && isBack == false">
+          <h3 class="login-input-block w-100 mb-3">我是
+            <input class="name p-2 fs-5" id="name" placeholder="請輸入全名" v-model.trim="loginToken[1]" @keydown.enter="checkLogin"/>
+            <p class="login-annoucement fs-5">{{ loginAnnoucement }}</p>
+          </h3>
+          <div class="btnGroup w-75">
+            <button class="p-2 fs-5" @click="checkLogin">我要點餐</button>
+            <button class="p-2 fs-5" @click="toOrderStatus">點餐狀況</button>
+          </div>
+        </div>
+        <div class="order-block col-lg-6 col-md-12 h-lg-50 h-md-25" v-if="viewStatus == 'order'"> 
+          <p>我是{{ loginToken[1] }}，我想吃</p>
+          <div class="form-control p-2">
+            <label class="lh-lg" :for="food.id" v-for="food in menu.foodList">
+              <input class="me-2" type="radio" name="foodList" :id="food.id" :value="food.id" v-model="orderId"/>{{ food.name }}
+            </label>
+            <label class="lh-lg" for="999">
+              <input class="me-2" type="radio" name="foodList" id="999" value="999" v-model="orderId"/>不用點餐！
+            </label>
+            <div class="btnGroup w-100 pt-3">
+              <button @click="submitOrder">確認點餐</button>
+              <button @click="toOrderStatus">點餐狀況</button>
+              <button @click="logout">登出</button>
+            </div>
+          </div>
+        </div>
+        <div class="titleImg-block col-lg-6 col-md-12 h-lg-50 h-md-25" v-if="viewStatus != 'orderList' && isBack == false">
+          <img :src="titleImgUrl"/>
+        </div>
+        <div class="order-list-block" v-if="viewStatus == 'orderList'">
+          <div class="description mb-2">
+            <p class="mb-0 fs-6">{{ menu.forTime }}的{{ menu.forEvent }}來吃
+              <span class="store">{{ menu.store }}</span>
+            </p>
+            <p class="mb-0 fs-6">最新一筆訂單更新時間：{{ orderListLatestTime }}</p>
+          </div>
+          <ul class="order-list row w-100 g-0 p-0">
+            <li class="col-lg-4 col-md-6 mb-1 pb-1" v-for="order in order">
+              <span class="name">{{ order.name }}</span>
+              <span class="order">{{ order.food.name }}</span>
+              <span class="price">${{ order.food.price }}</span></li>
+          </ul>
+          <div class="footer w-100 h-25">
+            <div class="total-food w-100 mb-1">
+              <span v-for="food,index in menu.foodList">{{ food.name }}：{{ totalFood()[index] }}</span>
+            </div>
+            <div class="footer-bar px-5">
+              <p class="m-0">總計：{{ totalPrice }}元</p>
+              <div class="btn-group w-25">
+                <button class="p-2" @click="toOrder" v-if="isBack != true">去點餐！</button>
+                <button class="ms-5 p-2" @click="toPrevBlock">返回</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="back-block col-12 h-100" v-if="(viewStatus == 'login' || viewStatus == 'logined') && isBack == true">
+          <h3 class="login-input-block w-50" v-if="viewStatus == 'login'">我是
+            <input class="name p-2 fs-5" id="name" placeholder="請輸入全名" v-model.trim="loginToken[1]" @keydown.enter="checkBackLogin"/>
+            <p class="login-annoucement fs-5">{{ loginAnnoucement }}</p>
+          </h3>
+          <h3 class="login-input-block w-50" v-html="backLoginInfo" v-if="viewStatus == 'logined'"></h3>
+          <div class="btn-group w-75">
+            <button class="p-3" @click="checkBackLogin" v-if="viewStatus == 'login'">登入</button>
+            <button class="p-3" @click="logout"v-if="viewStatus == 'logined'">登出</button>
+            <button class="p-3" @click="toEditMember">新增／刪除成員</button>
+            <button class="p-3" @click="toEditMenu">更新菜單</button>
+            <button class="p-3" @click="toOrderStatus">點餐狀況</button>
+          </div>
+        </div>
+        <div class="back-member-block col-12 h-100" v-if="viewStatus == 'editMember' && isBack == true">
+          <div class="input-block h-25">
+            <input type="text" v-model.trim="plusName" placeholder="請輸入全名" @keydown.enter="plusMember"/>
+            <i class="fa-solid fa-plus ms-2 fs-3" @click="plusMember"></i>
+            <button class="ms-5 p-3" @click="toPrevBlock">返回</button>
+          </div>
+          <ul class="member-list-block">
+            <li class="col-2 pt-3" :data-id="index" v-for="user,index in user">{{ user }}<i class="fa-solid fa-xmark ms-2 fs-3" @click="deleteMember"></i></li>
+          </ul>
+        </div>
+        <ul class="back-menu-block col-12 h-100" v-if="viewStatus == 'editMenu' && isBack == true">
+          <li class="store-name mb-2">
+            <div class="fs-3"><span>{{ menu.store }}</span></div>
+          </li>
+          <li class="event-time mb-2">
+            <div class="view-layer">
+              {{ menu.forTime }} {{ menu.forEvent }}
+              <i class="fa-solid fa-pen mx-2" @click="toEditBlock"></i>
+            </div>
+            <div class="edit-layer">
+              <input class="w-25" data-type="event" type="number" placeholder="月" :value="menu.forTime.split('/')[0]" min="1" max="12" @keydown.enter="updateEvent"/>
+              / <input class="w-25" data-type="event" type="number" placeholder="日" :value="menu.forTime.split('/')[1]" min="1" max="31" @keydown.enter="updateEvent"/>
+              <input class="w-50" data-type="event" type="text" placeholder="活動名稱" @keydown.enter="updateEvent"/>
+              <i class="fa-solid fa-check fs-3" @click="updateEvent"></i>
+              <i class="fa-solid fa-rotate-left fs-4" @click="toEditBlock"></i>
+            </div>
+          </li>
+          <li class="deadline-time mb-3">
+            <div class="view-layer">
+              截止期限：{{ menu.deadlineTime }}
+              <i class="fa-solid fa-pen mx-2" @click="toEditBlock"></i>
+            </div>
+            <div class="edit-layer w-100">
+              截止期限：
+              <input class="mx-1" data-type="deadline" type="datetime-local" @keydown.enter="updateDeadline">
+              <i class="fa-solid fa-check fs-3 mx-1" @click="updateDeadline"></i>
+              <i class="fa-solid fa-rotate-left fs-4 mx-1" @click="toEditBlock"></i>
+            </div>
+          </li>
+          <div class="back-menu-list-block row">
+            <li class="food-list mb-3 col-6" :data-id="food.id" v-for="food in menu.foodList">
+              <div class="view-layer fs-4">
+                <span>{{ food.name }}</span>
+                <span class="ms-3">${{ food.price }}</span>
+                <i class="fa-solid fa-pen mx-3 fs-4" @click="toEditBlock"></i>
+                <i class="fa-solid fa-xmark fs-3" @click="deleteFood"></i>
+              </div>
+              <div class="edit-layer fs-4">
+                <input class="w-50" :data-id="food.id" type="text" placeholder="品項名" @keydown.enter="updateMenu"/>
+                $<input class="w-50" :data-id="food.id" type="number" placeholder="價格" @keydown.enter="updateMenu"/>
+                <i class="fa-solid fa-check fs-3" @click="updateMenu"></i>
+                <i class="fa-solid fa-rotate-left fs-4" @click="toEditBlock"></i>
+              </div>
+            </li>
+          <li class="food-list col-6">
+            <i class="fa-solid fa-plus ms-2 fs-3" @click="plusOrderList"></i>
+          </li>
+          </div>
+          <div class="btn-group w-100">
+            <button class="m-4 p-3 w-100" @click="startNewMenu">開始新一輪點餐</button>
+            <button class="m-4 p-3 w-100" @click="changeTitleImg">更換封面圖片</button>
+            <button class="m-4 p-3 w-100" @click="toPrevBlock">返回</button>
+          </div>
+        </ul>
+      </div>
+    </div>
+    <div class="forPreload"></div>
+    <script defet src="https://unpkg.com/vue@3/dist/vue.global.js"></script>      
+    <script defer type="module" src="./js/all_test.js"></script>
+</body>
+</html>
