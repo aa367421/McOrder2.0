@@ -42,6 +42,10 @@ body > div {
   align-items: center;
 }
 
+[v-cloak] {
+  opacity: 0;
+}
+
 .main {
   border: 3px solid #FFF;
   border-radius: 5px;

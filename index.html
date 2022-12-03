@@ -32,8 +32,8 @@
   <link rel="stylesheet" href="./css/all.css">
 </head>
 <body>
-    <div class="container-xl w-100 m-0 vh-100" id="app">
-      <div class="main row w-75 h-75 g-0 p-4">
+    <div class="container-xl w-100 m-0 vh-100">
+      <div class="main row w-75 h-75 g-0 p-4" id="app" v-cloak>
         <div class="title-block col-lg-6 col-md-12 h-lg-50 h-md-25" v-if="viewStatus != 'orderList' && isBack == false">
           <h1 class="mb-3">麥點餐2.0</h1>
           <p class="fs-5">{{ menu.forTime }}的{{ menu.forEvent }}來吃

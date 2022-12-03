@@ -308,7 +308,7 @@ const vm = Vue.createApp({
             this.order.sort((a,b) => {
                 return b.food.timeStamp - a.food.timeStamp
             })
-            let d = new Date(this.order[0].food.timeStamp)
+            let d = new Date(this.order[0].food.timeStamp - 28800000) // for timezone
             if (d == 'Invalid Date') {
                 this.orderListLatestTime = "未有訂單";
                 return;
